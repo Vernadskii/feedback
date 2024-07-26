@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "feedback"
+version = "0.1.0"
+description = "feedback backend module"
+authors = ["Vernadskii <d.vernadskii@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^5.0.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
