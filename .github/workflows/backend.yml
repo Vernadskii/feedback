@@ -20,11 +20,13 @@ jobs:
       - name: Check for changes in backend
         id: changes
         run: |
-          git diff --unified=5 ${{ github.event.before }} ${{ github.event.after }}
+          git diff --name-only ${{ github.event.before }} ${{ github.event.after }}
           if git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep '^backend/'
           then
+            echo "true"
             echo "::set-output name=run_job::true"
           else
+            echo "false"
             echo "::set-output name=run_job::false"
           fi
         shell: bash
