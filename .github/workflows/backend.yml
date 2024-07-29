@@ -12,7 +12,10 @@ jobs:
       run_job: ${{ steps.changes.outputs.run_job }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Set to fetch all history for all branches and tags
 
       - name: Check for changes in backend
         id: changes
