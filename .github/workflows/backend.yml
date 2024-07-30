@@ -9,7 +9,7 @@ jobs:
   check_changes:
     runs-on: ubuntu-latest
     outputs:
-      run_backend: ${{ steps.changes.outputs.run_backend }}
+      run_backend: ${{ steps.check_changes.outputs.RUN_BACKEND }}
 
     steps:
       - uses: actions/checkout@v4
@@ -20,21 +20,21 @@ jobs:
       - name: Check for changes in the backend
         id: check_changes
         run: |
-          diff=$(git diff --name-only ${{ github.event.repository.default_branch }} ${{ github.sha }})
+          diff=$(git diff --name-only ${{ github.event.repository.default_branch }} ${{ github.sha }} -- backend/)
           echo $diff
-          if $diff | grep '^backend/'
+          if [ -n "$diff" ];  # Check if `diff` is not empty
           then
-            echo "true"
-            echo "::set-output name=run_backend::true"
+            result="true"
           else
-            echo "false"
-            echo "::set-output name=run_backend::false"
+            result="false"
           fi
+          echo $result
+          echo "RUN_BACKEND=$result" >> $GITHUB_OUTPUT
         shell: bash
 
   build-backend:
     needs: check_changes
-    if: needs.check_changes.outputs.run_backend == 'true'
+    if: ${{ needs.check_changes.outputs.run_backend == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
