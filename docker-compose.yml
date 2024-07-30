@@ -5,8 +5,12 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    env_file:
+      - environment/local.env
     ports:
      - "8000:8000"
+    depends_on:
+      - postgres_db
 
   frontend:
     build:
@@ -14,3 +18,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5173:5173"
+
+  postgres_db:
+    image: postgres:16
+    ports:
+      - 5433:5432
+    env_file:
+      - environment/local.env
+    volumes:
+      - ./data/postgres_db:/var/lib/postgresql/data
