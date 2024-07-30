@@ -20,7 +20,7 @@ jobs:
       - name: Check for changes in the backend
         id: check_changes
         run: |
-          diff = $(git diff --name-only ${{ github.event.repository.default_branch }} ${{ github.sha }})
+          diff=$(git diff --name-only ${{ github.event.repository.default_branch }} ${{ github.sha }})
           echo $diff
           if $diff | grep '^backend/'
           then
