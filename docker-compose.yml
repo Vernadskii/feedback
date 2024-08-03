@@ -1,14 +1,24 @@
 version: '3'
 
+x-backend-env:
+  &backend-env
+    APP_DB_HOST: ${DB_HOST}
+    APP_DB_USER: ${DB_USER}
+    APP_DB_NAME: ${DB_NAME}
+    APP_DB_PASSWORD: ${DB_PASSWORD}
+    APP_ENVIRONMENT: ${APP_ENVIRONMENT}
+    APP_LOG_LEVEL: ${APP_LOG_LEVEL}
+
 services:
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    env_file:
-      - environment/local.env
+    environment:
+      <<: *backend-env
+      APP_LABEL: "backend"
     ports:
-     - "8000:8000"
+     - "8080:8000"
     depends_on:
       - postgres_db
 
@@ -16,14 +26,20 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    environment:
+      API_URL: ${APP_API_URL}
     ports:
       - "5173:5173"
 
   postgres_db:
     image: postgres:16
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
     ports:
       - 5433:5432
-    env_file:
-      - environment/local.env
     volumes:
       - ./data/postgres_db:/var/lib/postgresql/data
