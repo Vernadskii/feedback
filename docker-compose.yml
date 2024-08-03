@@ -7,6 +7,7 @@ x-backend-env:
     APP_DB_NAME: ${DB_NAME}
     APP_DB_PASSWORD: ${DB_PASSWORD}
     APP_ENVIRONMENT: ${APP_ENVIRONMENT}
+    APP_DEBUG: ${APP_DEBUG}
     APP_LOG_LEVEL: ${APP_LOG_LEVEL}
 
 services:
