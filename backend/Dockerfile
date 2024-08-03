@@ -12,6 +12,8 @@ COPY . ./
 RUN pip install poetry==1.8.3
 RUN poetry install
 
+RUN chmod -R a+rx /app
+
 # Add entrypoint
 COPY docker-entrypoint.sh /
 RUN chmod 755 /docker-entrypoint.sh
