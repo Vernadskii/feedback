@@ -87,8 +87,8 @@ DATABASES = {
         "PORT": os.environ.get("APP_DB_PORT"),
         "CONN_MAX_AGE": None,
         'OPTIONS': {
-            'options': '-c timezone=Europe/Moscow'
-        }
+            'options': '-c timezone=Europe/Moscow',
+        },
     },
 }
 
