@@ -10,9 +10,10 @@ RUN apt-get update \
        libpq-dev \
        build-essential \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && mkdir /app \
+    && rm -rf /var/lib/apt/lists/*
 
+# Create the application directory
+RUN mkdir /app
 WORKDIR /app
 
 COPY . ./
