@@ -15,6 +15,8 @@ class MyUserManager(BaseUserManager):
         """
         Create and save a user with the given email and password.
         """
+        if not email:
+            raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.password = make_password(password)
@@ -91,7 +93,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):  # don't use AbstractUser
     class Meta:
         verbose_name = _("user")
         verbose_name_plural = _("users")
-        abstract = True
 
     def __str__(self):
         return self.get_full_name()
