@@ -3,8 +3,17 @@ LABEL authors="d.vernadskii@gmail.com"
 ENV PYTHONUNBUFFERED=1
 ENV TZ=Europe/Moscow
 
-RUN apt-get update && mkdir /app
+# Install system dependencies for psycopg2
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       gcc \
+       libpq-dev \
+       build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+# Create the application directory
+RUN mkdir /app
 WORKDIR /app
 
 COPY . ./
