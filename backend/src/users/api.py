@@ -17,7 +17,7 @@ from users.api_schemas import (
 from users.models import UserProfile
 
 
-router = Router()
+router = Router(tags=["users"])
 
 
 class AuthBearer(HttpBearer):
