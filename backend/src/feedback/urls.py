@@ -20,7 +20,7 @@ from ninja import NinjaAPI
 
 from users.api import router as users_router
 
-api = NinjaAPI()
+api = NinjaAPI(title="Feedback API", version="0.1.0", description="API for feedback app")
 api.add_router("/users", users_router)
 
 urlpatterns = [

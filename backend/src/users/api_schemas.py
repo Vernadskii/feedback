@@ -16,3 +16,7 @@ class LoginSchema(Schema):
 class RegisterSchema(Schema):
     email: str
     password: str
+
+
+class TokenSchema(Schema):
+    token: str

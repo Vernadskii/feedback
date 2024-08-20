@@ -1,24 +1,53 @@
-from ninja import Router
+import datetime as dt
 
-from users.models import UserProfile
-from users.api_schemas import UserSchema, LoginSchema, RegisterSchema
+import jwt
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
+from ninja import Router
 from ninja.errors import HttpError
+from ninja.security import HttpBearer
+
+from feedback import settings
+from users.api_schemas import (
+    LoginSchema,
+    RegisterSchema,
+    TokenSchema,
+    UserSchema,
+)
+from users.models import UserProfile
+
 
 router = Router()
 
 
-@router.post("/login", response={200: UserSchema, 401: str})
+class AuthBearer(HttpBearer):
+    def authenticate(self, request, token):
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            return None
+        except jwt.InvalidTokenError:
+            return None
+        return payload  # Return the payload (can be a user identifier or custom data)
+
+
+@router.post("/login", response={200: TokenSchema, 401: str})
 def login(request, payload: LoginSchema):
     user = authenticate(email=payload.email, password=payload.password)
 
     if user is not None:
-        # If authentication is successful, return the user data
-        return user
+        token = jwt.encode(
+            {
+                'id': user.id,
+                'exp': dt.datetime.utcnow() + dt.timedelta(hours=24),  # Token valid for 24 hours
+            },
+            settings.SECRET_KEY,
+            algorithm="HS256",
+        )
+        return {"token": token}
     else:
         # If authentication fails, return a 401 Unauthorized error
-        raise HttpError(401, "Invalid email or password")
+        raise HttpError(401, "Invalid email or password")  # noqa:  WPS503, WPS432
 
 
 @router.post("/register", response={201: UserSchema, 400: str})
@@ -34,6 +63,14 @@ def register(request, payload: RegisterSchema):
             password=payload.password,
         )
         user.save()
-        return 201, user  # Return the created user, which will be serialized by UserSchema
-    except ValidationError as e:
-        raise HttpError(400, str(e))
+    except ValidationError as ex:
+        raise HttpError(400, str(ex))
+
+    return 201, user  # Return the created user, which will be serialized by UserSchema
+
+
+@router.get("/protected", response={200: UserSchema}, auth=AuthBearer())
+def protected_route(request):
+    # Assuming the payload contains the user's ID, you can retrieve the user
+    user_id = request.auth['id']
+    return UserProfile.objects.get(id=user_id)
