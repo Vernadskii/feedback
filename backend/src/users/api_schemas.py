@@ -2,10 +2,19 @@ from ninja import Schema
 
 
 class UserSchema(Schema):
-    id: int
+    id: int | None
     first_name: str
     last_name: str
+    job_title: str
     email: str
+
+
+class UserUpdateSchema(Schema):
+    email: str | None
+    first_name: str | None
+    last_name: str | None
+    job_title: str | None
+    email: str | None
 
 
 class LoginSchema(Schema):

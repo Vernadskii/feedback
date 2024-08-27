@@ -1,8 +1,10 @@
 import datetime as dt
+from http import HTTPStatus
 
 import jwt
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
+from django.http import Http404
 from ninja import Router
 from ninja.errors import HttpError
 from ninja.security import HttpBearer
@@ -13,6 +15,7 @@ from users.api_schemas import (
     RegisterSchema,
     TokenSchema,
     UserSchema,
+    UserUpdateSchema,
 )
 from users.models import UserProfile
 
@@ -54,23 +57,45 @@ def login(request, payload: LoginSchema):
 def register(request, payload: RegisterSchema):
     # Check if the email already exists
     if UserProfile.objects.filter(email=payload.email).exists():
-        raise HttpError(400, "Email already exists")
+        raise HttpError(HTTPStatus.BAD_REQUEST, "Email already exists")
 
     # Create the user
-    try:
+    try:  # noqa: WPS229
         user = UserProfile.objects.create_user(
             email=payload.email,
             password=payload.password,
         )
         user.save()
     except ValidationError as ex:
-        raise HttpError(400, str(ex))
+        raise HttpError(HTTPStatus.BAD_REQUEST, str(ex))
 
     return 201, user  # Return the created user, which will be serialized by UserSchema
 
 
-@router.get("/protected", response={200: UserSchema}, auth=AuthBearer())
-def protected_route(request):
-    # Assuming the payload contains the user's ID, you can retrieve the user
-    user_id = request.auth['id']
-    return UserProfile.objects.get(id=user_id)
+@router.get("/", response={200: list[UserSchema]}, auth=AuthBearer())
+def get_users(request):
+    return list(UserProfile.objects.all())
+
+
+@router.get("/{user_id}", response={200: UserSchema, 404: str}, auth=AuthBearer())
+def get_user(request, user_id: int):
+    try:
+        user = UserProfile.objects.get(id=user_id)
+    except UserProfile.DoesNotExist:
+        raise Http404(f"User with ID {user_id} not found.")
+    return user
+
+
+@router.patch("/{user_id}", response={200: UserSchema, 404: str}, auth=AuthBearer())
+def update_user(request, user_id: int, payload: UserUpdateSchema):
+    try:
+        user = UserProfile.objects.get(id=user_id)
+    except UserProfile.DoesNotExist:
+        raise Http404(f"User with ID {user_id} not found.")
+
+    # Apply the changes from the payload
+    for attr, value in payload.dict(exclude_unset=True).items():
+        setattr(user, attr, value)
+
+    user.save()
+    return user
