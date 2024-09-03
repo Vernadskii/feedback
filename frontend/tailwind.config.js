@@ -12,9 +12,9 @@ export default {
       '2xl': ['2.5rem', { lineHeight: '2.5rem', letterSpacing: '' }], // 40/40px
     },
     fontWeight: {
-      medium: '300',
-      semibold: '400',
-      bold: '500',
+      medium: '400',
+      semibold: '500',
+      bold: '600',
     },
     fontFamily: {
       manrope: "'Manrope', sans-serif",
