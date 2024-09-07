@@ -1,5 +1,7 @@
+import LoginPage from 'components/LoginPage'
+
 function App() {
-  return <div>MO Retail</div>
+  return <LoginPage />
 }
 
 export default App
