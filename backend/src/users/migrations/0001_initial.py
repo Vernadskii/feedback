@@ -4,7 +4,7 @@ import django.core.validators
 import django.utils.timezone
 from django.db import migrations, models
 
-import login.models
+import users.models
 
 
 class Migration(migrations.Migration):
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'users',
             },
             managers=[
-                ('objects', login.models.MyUserManager()),
+                ('objects', users.models.MyUserManager()),
             ],
         ),
     ]
