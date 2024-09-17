@@ -45,3 +45,25 @@ services:
       - ${DB_PORT}:5432
     volumes:
       - ./data/postgres_db:/var/lib/postgresql/data
+
+  minio:
+    restart: on-failure
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    expose:
+      - 9000
+      - 9001
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY}
+    command: server --address ":9000" --console-address ":9001" /export
+    volumes:
+      - "../../app/backend/media/minio:/export"
+      - "../../app/backend/media/minio:/root/.minio"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M

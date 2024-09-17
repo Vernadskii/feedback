@@ -143,6 +143,9 @@ S3_ACCESS_KEY_ID = os.getenv("STORAGE_ACCESS_KEY")
 S3_SECRET_ACCESS_KEY = os.getenv("STORAGE_SECRET_KEY")
 S3_VERIFY = False
 
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
+MEDIA_URL = "/media/"
+
 # Logging (This dictionary is automatically used by Django to configure the logging system when the application starts)
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')
 
