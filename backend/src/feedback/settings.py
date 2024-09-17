@@ -155,7 +155,7 @@ LOGGING = {
     'formatters': {
         'custom': {
             '()': CustomFormatter,
-            'format': '{levelname} {asctime} {event} {message}',
+            'format': '{levelname} {asctime} {event}: {message}',
             'style': '{',
         },
     },
@@ -170,3 +170,9 @@ LOGGING = {
         'level': LOG_LEVEL,
     },
 }
+
+URLS = {
+    "CLIENT": os.environ.get("URL_CLIENT"),
+    "API": os.environ.get("URL_API"),
+}
+

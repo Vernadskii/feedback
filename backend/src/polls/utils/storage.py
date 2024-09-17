@@ -31,8 +31,8 @@ class MinioStorage:
             bucket = self.client.Bucket(self.bucket_name)
             bucket.upload_file(full_path, file_path)
         except Exception as err:
-            logger.error(  # TODO: to test logger
-                f'error minio uploading file {err}',
+            logger.error(
+                f'error minio uploading file {file_path} {err}',
                 extra={'event': 'minio_upload_file'}
             )
 
@@ -42,9 +42,8 @@ class MinioStorage:
             bucket.download_file(file_path, full_path)
         except Exception as err:
             logger.error(
-                event='minio_download_file',
-                message='error minio downloading file %s' % err,
-                payload__file_path=file_path,
+                f'error minio downloading file {file_path} {err}',
+                extra={'event': 'minio_download_file'}
             )
 
     @staticmethod
@@ -57,7 +56,7 @@ class MinioStorage:
         file_name = path_parts.pop()
         api = settings.URLS['API']
         view_name = 's3-media'
-
+        # TODO: add reverse?
         return f"{api}{view_name}/{'/'.join(path_parts)}/{file_name}"
 
 
@@ -80,13 +79,3 @@ class S3ProxyFileSystemStorage(FileSystemStorage):
         if self.exists(name):
             os.remove(os.path.join(settings.MEDIA_ROOT, name))
         return name
-
-    def url(self, name):
-        reversed_url = reverse(
-            'media_from_s3',
-            kwargs={
-                'upload_to': name.split('/')[0],
-                'file_path': name.split('/')[-1]
-            }
-        )
-        return f"{settings.URLS.get('API', '')}{reversed_url}"
