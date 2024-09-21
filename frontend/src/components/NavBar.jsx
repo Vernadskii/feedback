@@ -4,7 +4,7 @@ import Button from './Button'
 
 function NavBar() {
   return (
-    <nav className="mx-20 flex justify-between border-b-[1px] pb-[7px]">
+    <nav className="flex justify-between border-b-[1px] pb-[7px]">
       <div className="flex items-center gap-6 pt-3">
         <a href="#" className="text-base font-medium">
           Все<span className="ml-1">9</span>
