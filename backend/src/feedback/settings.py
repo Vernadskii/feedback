@@ -176,4 +176,3 @@ URLS = {
     "CLIENT": os.environ.get("URL_CLIENT"),
     "API": os.environ.get("URL_API"),
 }
-

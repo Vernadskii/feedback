@@ -14,7 +14,6 @@ class BasePollSchema(Schema):
     date_finish: date
 
     communications_total: int
-    author_id: int
 
     # noinspection PyNestedDecorators
     @field_validator('channel')
@@ -46,3 +45,4 @@ class ExistingPollSchema(BasePollSchema):
     id: int
     stats_sent: int
     modified: datetime
+    author_id: int
