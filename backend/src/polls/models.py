@@ -16,24 +16,6 @@ class Poll(models.Model):
         (CHANNEL_WEB, "Web"),
     )
 
-    CHANNELS_CODES = (
-        "CHANNEL_SMS",
-        "CHANNEL_EMAIL",
-        "CHANNEL_WEB",
-    )
-
-    CHANNELS_ORDER: tuple[int, ...] = (
-        CHANNEL_WEB,
-        CHANNEL_EMAIL,
-        CHANNEL_SMS,
-    )
-
-    CHANNELS_TOOLTIPS = (
-        'SMS - Отправка sms сообщения клиенту с вопросом, на который клиент отвечает в ответном сообщении.',
-        'E-mail - Отправка email письма со ссылкой на опрос.',
-        'Web - Канал для сбора обратной связи через ссылку. Коммуникация по данному каналу отправлена не будет.',
-    )
-
     STATUS_ACTIVE = 2
     STATUS_FINISHED = 3
     STATUS_DELETED = 4
@@ -115,7 +97,6 @@ class Poll(models.Model):
 
 class PollQuestion(models.Model):
     fs = S3ProxyFileSystemStorage()
-    # objects = PollQuestionManager()
 
     TYPE_TEXT = 1
     TYPE_SINGLE_ANSWER = 2
@@ -126,24 +107,6 @@ class PollQuestion(models.Model):
         (TYPE_SINGLE_ANSWER, "Одиночный выбор"),
         (TYPE_MULTIPLE_ANSWERS, "Множественный выбор"),
     )
-
-    SKIPPABLE_TYPES: tuple[int] = (
-        TYPE_SINGLE_ANSWER,
-        TYPE_MULTIPLE_ANSWERS,
-    )
-
-    TYPES_CODES = (
-        "TYPE_TEXT",
-        "TYPE_SINGLE_ANSWER",
-        "TYPE_MULTIPLE_ANSWERS",
-    )
-
-    # Используются в Poll.objects.update_answer_stats()
-    TYPES_STATS_METHODS = {
-        (TYPE_TEXT, "count"),
-        (TYPE_SINGLE_ANSWER, "answers_count"),
-        (TYPE_MULTIPLE_ANSWERS, "answers_count"),
-    }
 
     poll = models.ForeignKey(Poll, verbose_name="Опрос", blank=False, on_delete=models.PROTECT)
     question_type = models.PositiveIntegerField(verbose_name="Тип вопроса", blank=False, choices=TYPES)
@@ -165,15 +128,16 @@ class PollQuestion(models.Model):
         verbose_name='Текст завершающего сообщения',
     )
 
-    is_line_input_form = models.BooleanField(
-        verbose_name='Форма для ввода ответа на вопрос в свободной форме - строка (Иначе - абзац)',
-        default=False,
-    )
-    is_numerical_answer = models.BooleanField(
-        verbose_name='Ответ на вопрос в свободной форме должен быть числом',
-        default=False,
-    )
     modified_at = models.DateTimeField(verbose_name="Дата модификации", auto_now=True)
 
     class Meta:
-        ordering = ["order"]
+        ordering = ["modified_at"]
+
+
+class PollQuestionAnswer(models.Model):
+    question = models.ForeignKey(PollQuestion, verbose_name="Вопрос", blank=False, on_delete=models.CASCADE)
+    text = models.TextField(verbose_name="Текст ответа", blank=False)
+    modified_at = models.DateTimeField(verbose_name="Дата модификации", auto_now=True)
+
+    class Meta:
+        ordering = ["modified_at"]

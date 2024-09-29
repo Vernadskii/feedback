@@ -2,11 +2,6 @@ version: '3'
 
 x-backend-env:
   &backend-env
-    APP_DB_HOST: ${DB_HOST}
-    APP_DB_PORT: ${DB_PORT}
-    APP_DB_USER: ${DB_USER}
-    APP_DB_NAME: ${DB_NAME}
-    APP_DB_PASSWORD: ${DB_PASSWORD}
     APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     APP_DEBUG: ${APP_DEBUG}
     APP_LOG_LEVEL: ${APP_LOG_LEVEL}
@@ -20,11 +15,17 @@ services:
       dockerfile: Dockerfile
     environment:
       <<: *backend-env
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_NAME: ${DB_NAME}
+      DB_PASSWORD: ${DB_PASSWORD}
       APP_LABEL: "backend"
     ports:
      - "8080:8000"
     depends_on:
       - postgres_db
+      - minio
 
   frontend:
     build:

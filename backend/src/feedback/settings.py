@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
+    'polls',
 ]
 
 MIDDLEWARE = [
@@ -81,11 +82,11 @@ WSGI_APPLICATION = 'feedback.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("APP_DB_NAME"),
-        "USER": os.environ.get("APP_DB_USER"),
-        "PASSWORD": os.environ.get("APP_DB_PASSWORD"),
-        "HOST": os.environ.get("APP_DB_HOST"),
-        "PORT": os.environ.get("APP_DB_PORT"),
+        'NAME': os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT"),
         "CONN_MAX_AGE": None,
         'OPTIONS': {
             'options': '-c timezone=Europe/Moscow',

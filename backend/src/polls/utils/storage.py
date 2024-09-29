@@ -4,7 +4,6 @@ import boto3
 from django.core.files.storage import FileSystemStorage
 
 from botocore.client import Config
-from django.urls import reverse
 
 from feedback import settings
 
