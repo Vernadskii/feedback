@@ -21,6 +21,17 @@ class LoginSchema(Schema):
     email: str
     password: str
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "email": "admin@admin.com",
+                    "password": "admin",
+                }
+            ]
+        }
+    }
+
 
 class RegisterSchema(Schema):
     email: str

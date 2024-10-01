@@ -118,15 +118,6 @@ class PollQuestion(models.Model):
         verbose_name='Присутствует ответ "Затрудняюсь ответить"',
         default=False,
     )
-    is_last_page = models.BooleanField(
-        default=False,
-        verbose_name='Последняя страница опроса',
-    )
-    end_message_text = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name='Текст завершающего сообщения',
-    )
 
     modified_at = models.DateTimeField(verbose_name="Дата модификации", auto_now=True)
 

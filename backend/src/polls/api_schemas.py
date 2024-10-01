@@ -3,7 +3,7 @@ from datetime import datetime, date
 from ninja import Schema
 from pydantic import field_validator, model_validator
 
-from polls.models import Poll
+from polls.models import Poll, PollQuestion
 
 
 class BasePollSchema(Schema):
@@ -46,3 +46,35 @@ class ExistingPollSchema(BasePollSchema):
     stats_sent: int
     modified: datetime
     author_id: int
+
+
+# Questions
+
+class QuestionSchema(Schema):
+    title: str
+    question_type: int
+    is_required: bool
+    image: str | None = None
+    has_skip_answer: bool
+
+    # noinspection PyNestedDecorators
+    @field_validator('question_type')
+    @classmethod
+    def question_type_must_be_valid(cls, _type: int):
+        allowed_types: list[int] = [_type[0] for _type in PollQuestion.TYPES]
+        if _type not in allowed_types:
+            raise ValueError(f'Invalid question_type value: {_type}. Allowed values are {allowed_types}.')
+        return _type
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "title": "Тест вопроса",
+                    "question_type": 1,
+                    "is_required": True,
+                    "has_skip_answer": True,
+                }
+            ]
+        }
+    }
