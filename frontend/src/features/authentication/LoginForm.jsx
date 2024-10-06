@@ -2,20 +2,27 @@
 /* eslint-disable react/button-has-type */
 
 import { useState } from 'react'
-import Button from './Button'
+import Button from '../../components/Button'
+import { useLogin } from './useLogin'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const { login, isLoading } = useLogin()
 
   function handleSubmit(e) {
     e.preventDefault()
     if (!email || !password) return
 
-    console.log(email, password)
-
-    setEmail('')
-    setPassword('')
+    login(
+      { email, password },
+      {
+        onSettled: () => {
+          setEmail('')
+          setPassword('')
+        },
+      }
+    )
   }
 
   return (
@@ -34,6 +41,7 @@ function LoginForm() {
           placeholder="example@mail.ru"
           value={email}
           onChange={e => setEmail(e.target.value)}
+          disabled={isLoading}
           className="rounded-sm border px-4 py-2.5 text-base font-medium"
         />
       </div>
@@ -48,10 +56,11 @@ function LoginForm() {
           placeholder="Введите пароль"
           value={password}
           onChange={e => setPassword(e.target.value)}
+          disabled={isLoading}
           className="mb-1 rounded-sm border px-4 py-2.5 text-base font-medium"
         />
       </div>
-      <Button variant="bluePrimary" fullWidth>
+      <Button variant="bluePrimary" disabled={isLoading} fullWidth>
         Войти
       </Button>
     </form>

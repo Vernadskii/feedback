@@ -1,6 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable react/prop-types */
-/* eslint-disable jsdoc/require-jsdoc */
 /* eslint-disable react/button-has-type */
 
 import { cva } from 'class-variance-authority'

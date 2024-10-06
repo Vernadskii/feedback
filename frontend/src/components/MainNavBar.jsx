@@ -1,5 +1,4 @@
 /* eslint-disable react/button-has-type */
-/* eslint-disable jsx-a11y/anchor-is-valid */
 
 import { NavLink } from 'react-router-dom'
 import Button from './Button'
