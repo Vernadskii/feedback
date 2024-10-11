@@ -40,8 +40,10 @@ def get_poll(request, poll_id: int):
 
 @router.get("/", response=list[ExistingPollSchema], auth=AuthBearer())
 @paginate(PageNumberPagination, page_size=15)
-def list_polls(request):
-    return Poll.objects.all()
+def list_polls(request, status: int = 0):
+    if status == 0:
+        return Poll.objects.all()
+    elif status in Poll.poll_statuses
 
 
 # Questions

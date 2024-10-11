@@ -19,7 +19,7 @@ class BasePollSchema(Schema):
     @field_validator('channel')
     @classmethod
     def channel_must_be_valid(cls, channel: int):
-        allowed_channels: list[int] = [ch[0] for ch in Poll.CHANNELS]
+        allowed_channels: list[int] = Poll.poll_channels()
         if channel not in allowed_channels:
             raise ValueError(f'Invalid channel value: {channel}. Allowed values are {allowed_channels}.')
         return channel
@@ -28,7 +28,7 @@ class BasePollSchema(Schema):
     @field_validator('status')
     @classmethod
     def status_must_be_valid(cls, status: int):
-        allowed_status: list[int] = [status[0] for status in Poll.STATUSES]
+        allowed_status: list[int] = Poll.poll_statuses()
         if status not in allowed_status:
             raise ValueError(f'Invalid status value: {status}. Allowed values are {allowed_status}.')
         return status

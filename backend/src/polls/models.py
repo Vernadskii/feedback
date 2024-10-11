@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-
+from functools import cache
 from polls.utils.storage import S3ProxyFileSystemStorage
 from users.models import UserProfile
 
@@ -93,6 +93,16 @@ class Poll(models.Model):
                 self.status = self.STATUS_FINISHED
 
         super().save(*args, **kwargs)
+
+    @cache
+    def poll_statuses(self) -> list[int]:
+        """Returns the list with possible statuses numbers."""
+        return [st[0] for st in self.STATUSES]
+
+    @cache
+    def poll_channels(self) -> list[int]:
+        """Returns the list with possible channel numbers."""
+        return [ch[0] for ch in Poll.CHANNELS]
 
 
 class PollQuestion(models.Model):
