@@ -2,9 +2,10 @@
 
 import django.db.models.deletion
 import django.utils.timezone
-import polls.utils.storage
 from django.conf import settings
 from django.db import migrations, models
+
+import polls.utils.storage
 
 
 class Migration(migrations.Migration):

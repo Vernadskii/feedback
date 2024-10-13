@@ -27,9 +27,9 @@ class LoginSchema(Schema):
                 {
                     "email": "admin@admin.com",
                     "password": "admin",
-                }
-            ]
-        }
+                },
+            ],
+        },
     }
 
 

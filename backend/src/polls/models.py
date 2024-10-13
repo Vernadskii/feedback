@@ -1,6 +1,8 @@
+from functools import cache
+
 from django.db import models
 from django.utils import timezone
-from functools import cache
+
 from polls.utils.storage import S3ProxyFileSystemStorage
 from users.models import UserProfile
 
@@ -58,7 +60,9 @@ class Poll(models.Model):
     )
     stats_sent = models.PositiveIntegerField(verbose_name="Отправлено", default=0, editable=False)
 
-    author = models.ForeignKey(UserProfile, verbose_name="Автор", blank=False, null=False, on_delete=models.PROTECT)
+    author = models.ForeignKey(
+        UserProfile, verbose_name="Автор", blank=False, null=False, on_delete=models.PROTECT,
+    )
 
     modified = models.DateTimeField(verbose_name="Обновлено", auto_now=False, default=timezone.now)
 
@@ -84,24 +88,26 @@ class Poll(models.Model):
 
         indexes = [models.Index(fields=["status"])]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
-    def save(self, *args, trigger_status_update=False, **kwargs):
+    def save(self, *args, trigger_status_update=False, **kwargs):  # noqa: ANN002, ANN003
         if self.status not in self.STATUSES_FINAL:
             if timezone.now().date() > self.date_finish:
-                self.status = self.STATUS_FINISHED
+                self.status = self.STATUS_FINISHED  # noqa: WPS601
 
         super().save(*args, **kwargs)
 
+    @staticmethod
     @cache
-    def poll_statuses(self) -> list[int]:
-        """Returns the list with possible statuses numbers."""
-        return [st[0] for st in self.STATUSES]
+    def poll_statuses() -> list[int]:
+        """Return the list with possible statuses numbers."""
+        return [st[0] for st in Poll.STATUSES]
 
+    @staticmethod
     @cache
-    def poll_channels(self) -> list[int]:
-        """Returns the list with possible channel numbers."""
+    def poll_channels() -> list[int]:
+        """Return the list with possible channel numbers."""
         return [ch[0] for ch in Poll.CHANNELS]
 
 

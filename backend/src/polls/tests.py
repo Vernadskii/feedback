@@ -1,7 +1,9 @@
-from polls.utils.storage import MinioStorage
 import os
 import tempfile
+
 from django.test import TestCase
+
+from polls.utils.storage import MinioStorage
 
 
 class MinioStorageIntegrationTestCase(TestCase):
