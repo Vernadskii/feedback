@@ -2,14 +2,11 @@ version: '3'
 
 x-backend-env:
   &backend-env
-    APP_DB_HOST: ${DB_HOST}
-    APP_DB_PORT: ${DB_PORT}
-    APP_DB_USER: ${DB_USER}
-    APP_DB_NAME: ${DB_NAME}
-    APP_DB_PASSWORD: ${DB_PASSWORD}
     APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     APP_DEBUG: ${APP_DEBUG}
     APP_LOG_LEVEL: ${APP_LOG_LEVEL}
+    APP_API_URL: ${APP_API_URL}
+    APP_CLIENT_URL: ${APP_CLIENT_URL}
 
 services:
   backend:
@@ -18,11 +15,17 @@ services:
       dockerfile: Dockerfile
     environment:
       <<: *backend-env
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_NAME: ${DB_NAME}
+      DB_PASSWORD: ${DB_PASSWORD}
       APP_LABEL: "backend"
     ports:
      - "8080:8000"
     depends_on:
       - postgres_db
+      - minio
 
   frontend:
     build:
@@ -45,3 +48,25 @@ services:
       - ${DB_PORT}:5432
     volumes:
       - ./data/postgres_db:/var/lib/postgresql/data
+
+  minio:
+    restart: on-failure
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    expose:
+      - 9000
+      - 9001
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY}
+    command: server --address ":9000" --console-address ":9001" /export
+    volumes:
+      - ./data/minio:/export
+      - ./data/minio:/root/.minio
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M

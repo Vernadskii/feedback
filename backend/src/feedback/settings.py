@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 
+from utils.logging_utils import CustomFormatter
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
+    'polls',
 ]
 
 MIDDLEWARE = [
@@ -80,11 +83,11 @@ WSGI_APPLICATION = 'feedback.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("APP_DB_NAME"),
-        "USER": os.environ.get("APP_DB_USER"),
-        "PASSWORD": os.environ.get("APP_DB_PASSWORD"),
-        "HOST": os.environ.get("APP_DB_HOST"),
-        "PORT": os.environ.get("APP_DB_PORT"),
+        'NAME': os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT"),
         "CONN_MAX_AGE": None,
         'OPTIONS': {
             'options': '-c timezone=Europe/Moscow',
@@ -134,3 +137,43 @@ STATIC_URL = 'static/'
 AUTH_USER_MODEL = "users.UserProfile"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# S3 MINIO
+S3_STORAGE_BUCKET_NAME = os.getenv("STORAGE_MEDIA_BUCKET_NAME")
+S3_ENDPOINT_URL = os.getenv("STORAGE_ENDPOINT")
+S3_ACCESS_KEY_ID = os.getenv("STORAGE_ACCESS_KEY")
+S3_SECRET_ACCESS_KEY = os.getenv("STORAGE_SECRET_KEY")
+S3_VERIFY = False
+
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
+MEDIA_URL = "/media/"
+
+# Logging (This dictionary is automatically used by Django to configure the logging system when the application starts)
+LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'custom': {
+            '()': CustomFormatter,
+            'format': '{levelname} {asctime} {event}: {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'custom',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': LOG_LEVEL,
+    },
+}
+
+URLS = {
+    "CLIENT": os.environ.get("URL_CLIENT"),
+    "API": os.environ.get("URL_API"),
+}

@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 from django.http import Http404
 from ninja import Router
 from ninja.errors import HttpError
-from ninja.security import HttpBearer
 
 from feedback import settings
 from users.api_schemas import (
@@ -17,21 +16,11 @@ from users.api_schemas import (
     UserSchema,
     UserUpdateSchema,
 )
+from users.auth import AuthBearer
 from users.models import UserProfile
 
 
 router = Router(tags=["users"])
-
-
-class AuthBearer(HttpBearer):
-    def authenticate(self, request, token):
-        try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        except jwt.ExpiredSignatureError:
-            return None
-        except jwt.InvalidTokenError:
-            return None
-        return payload  # Return the payload (can be a user identifier or custom data)
 
 
 @router.post("/login", response={200: TokenSchema, 401: str})
@@ -42,7 +31,8 @@ def login(request, payload: LoginSchema):
         token = jwt.encode(
             {
                 'id': user.id,
-                'exp': dt.datetime.utcnow() + dt.timedelta(hours=24),  # Token valid for 24 hours
+                'exp': dt.datetime.utcnow() + dt.timedelta(days=1),  # Token valid for 24 hours
+                'iat': dt.datetime.utcnow(),
             },
             settings.SECRET_KEY,
             algorithm="HS256",
