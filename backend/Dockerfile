@@ -1,4 +1,4 @@
-FROM python:3.11-slim as build
+FROM python:3.11 as build
 LABEL authors="d.vernadskii@gmail.com"
 ENV PYTHONUNBUFFERED=1
 ENV TZ=Europe/Moscow
@@ -29,6 +29,5 @@ RUN chmod 755 /docker-entrypoint.sh
 
 EXPOSE 8000
 # Run app
-#ENTRYPOINT ["/bin/bash"]
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["run"]
