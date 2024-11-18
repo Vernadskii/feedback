@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 from ninja import Query, Router
 from ninja.errors import HttpError
 from ninja.pagination import PageNumberPagination, paginate
@@ -98,10 +99,10 @@ def list_questions(request, poll_id: int):
 
 
 # Conditions
-@router.get("/{poll_id}/condition", response={200: PollConditionSchema, 400: str}, auth=AuthBearer())
+@router.get("/{poll_id}/condition", response={200: PollConditionSchema, 400: str, 404: str}, auth=AuthBearer())
 def list_condition(request, poll_id: int):
-    condition = PollConditions.objects.filter(poll_id=poll_id)
-    return condition
+    condition = get_object_or_404(PollConditions, poll_id=poll_id)
+    return PollConditionSchema.model_validate(condition)
 
 
 @router.post("/{poll_id}/condition", response={201: str, 400: str}, auth=AuthBearer())

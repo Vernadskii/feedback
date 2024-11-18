@@ -1,7 +1,7 @@
 import datetime as dt
 
 from ninja import Schema
-from pydantic import field_validator, model_validator
+from pydantic import field_validator, model_validator, Json
 
 from polls.models import Poll, PollQuestion, PollConditions
 
@@ -89,7 +89,7 @@ class QuestionSchema(Schema):
 class PollConditionSchema(Schema):
     condition_type: int = 1
     condition_id: str
-    condition_value: str
+    condition_value: Json
 
     model_config = {
         "json_schema_extra": {
@@ -97,7 +97,7 @@ class PollConditionSchema(Schema):
                 {
                     "condition_type": "1",
                     "condition_id": PollConditions.CONDITIONS_TRIGGER_ITEM_RECEIPT_SUM,
-                    "condition_value": '{"value_min": "500", "value_max": "1000"}',
+                    "condition_value": '''{"value_min": 500, "value_max": 1000}''',
                 },
             ],
         },

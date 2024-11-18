@@ -60,11 +60,12 @@ class SyncRabbit(CommonSync):
         self.connection_mq = pika.BlockingConnection(conn_param)
         self.mq_channel = self.connection_mq.channel()
         self.mq_channel.exchange_declare(exchange="feedback", durable=True, auto_delete=False)
+
         self.mq_channel.queue_declare(queue="receipts", durable=True)
         self.mq_channel.queue_bind("receipts", "feedback")
 
-        # self.mq_channel.queue_declare(queue="poll_notifications", durable=True)
-        # self.mq_channel.queue_bind("poll_notifications", "feedback")
+        self.mq_channel.queue_declare(queue="poll_notifications", durable=True)
+        self.mq_channel.queue_bind("poll_notifications", "feedback")
 
     def close_mq(self):
         if self.connection_mq:
