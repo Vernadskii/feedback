@@ -49,6 +49,7 @@ class SyncRabbit(CommonSync):
         credentials = pika.PlainCredentials(settings.RABBITMQ["USER"], settings.RABBITMQ["PASSWORD"])
         conn_param = pika.ConnectionParameters(
                 host=settings.RABBITMQ["HOSTS"],
+                virtual_host=settings.RABBITMQ["VHOST"],
                 connection_attempts=5,
                 retry_delay=1,
                 credentials=credentials,
