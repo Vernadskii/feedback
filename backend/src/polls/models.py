@@ -1,6 +1,7 @@
 from functools import cache
 
 from django.db import models
+from django.db.models import JSONField
 from django.utils import timezone
 
 from polls.utils.storage import S3ProxyFileSystemStorage
@@ -148,3 +149,33 @@ class PollQuestionAnswer(models.Model):
 
     class Meta:
         ordering = ["modified_at"]
+
+
+class PollConditions(models.Model):
+    """
+    Условия для опросов. ID опроса, тип условия, JSON с условиями срабатывания опроса
+    """
+
+    TYPE_CONDITION = 1
+
+    TYPES = (
+        (TYPE_CONDITION, "Условия"),
+    )
+
+    CONDITIONS_TRIGGER_ITEM_RECEIPT_SUM = "conditions_trigger_item_receipt_sum"
+
+    CONDITIONS_TRIGGER_ITEM_RECEIPT_EVENTS = (
+        (CONDITIONS_TRIGGER_ITEM_RECEIPT_SUM, "Сумма чека"),
+    )
+
+    poll = models.OneToOneField(Poll, verbose_name="Опрос", blank=False, on_delete=models.PROTECT, unique=True)
+    condition_type = models.PositiveIntegerField(verbose_name="Тип", blank=False, choices=TYPES)
+    condition_id = models.CharField(
+        verbose_name="Условие", max_length=255, default=CONDITIONS_TRIGGER_ITEM_RECEIPT_SUM,
+        choices=CONDITIONS_TRIGGER_ITEM_RECEIPT_EVENTS
+    )
+    condition_value = JSONField(verbose_name="Содержание условия")
+    modified_at = models.DateTimeField(verbose_name="Дата модификации", auto_now=True)
+
+    class Meta:
+        ordering = ["poll"]

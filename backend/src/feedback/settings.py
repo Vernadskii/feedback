@@ -148,6 +148,16 @@ S3_VERIFY = False
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
 MEDIA_URL = "/media/"
 
+# RabbitMQ
+RABBITMQ = {
+    "HOSTS": os.environ.get("MQ_HOSTS", "localhost"),
+    "USER": os.environ.get("MQ_USER"),
+    "PASSWORD": os.environ.get("MQ_PASS"),
+    "VHOST": os.environ.get("MQ_VHOST", "/"),
+}
+
+RABBITMQ_HEARTBEAT = int(os.getenv("RABBITMQ_HEARTBEAT", 90))
+
 # Logging (This dictionary is automatically used by Django to configure the logging system when the application starts)
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')
 

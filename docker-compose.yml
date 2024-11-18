@@ -7,6 +7,30 @@ x-backend-env:
     APP_LOG_LEVEL: ${APP_LOG_LEVEL}
     APP_API_URL: ${APP_API_URL}
     APP_CLIENT_URL: ${APP_CLIENT_URL}
+    DB_HOST: ${DB_HOST}
+    DB_PORT: ${DB_PORT}
+    DB_USER: ${DB_USER}
+    DB_NAME: ${DB_NAME}
+    DB_PASSWORD: ${DB_PASSWORD}
+    MQ_HOSTS: 'rabbitmq'
+    MQ_USER: ${MQ_USER}
+    MQ_PASS: ${MQ_PASS}
+    MQ_VHOST: ${MQ_VHOST}
+
+x-backend:
+  &backend
+  build:
+    context: ./backend
+    dockerfile: Dockerfile
+  restart: on-failure
+  volumes:
+    - "../../app/backend/:/var/app"
+  environment:
+    <<: *backend-env
+    APP_LABEL: "backend"
+  stdin_open: true
+  tty: true
+
 
 services:
   backend:
@@ -15,17 +39,29 @@ services:
       dockerfile: Dockerfile
     environment:
       <<: *backend-env
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_USER: ${DB_USER}
-      DB_NAME: ${DB_NAME}
-      DB_PASSWORD: ${DB_PASSWORD}
       APP_LABEL: "backend"
     ports:
      - "8080:8000"
     depends_on:
       - postgres_db
       - minio
+
+  watcher_receipt_process:
+    <<: *backend
+    ports:
+      - "5686:5678"
+    command:
+      poetry run /app/src/manage.py receipt_process
+    depends_on:
+      - postgres_db
+      - rabbitmq
+    environment:
+      <<: *backend-env
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
 
   frontend:
     build:
@@ -48,6 +84,29 @@ services:
       - ${DB_PORT}:5432
     volumes:
       - ./data/postgres_db:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  # RabbitMQ default port
+      - "15672:15672"  # Management UI default port
+    volumes:
+      - ./data/mq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${MQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${MQ_PASS}
+      RABBITMQ_DEFAULT_VHOST: ${MQ_VHOST}
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
 
   minio:
     restart: on-failure
