@@ -1,5 +1,7 @@
 import atexit
-from loguru._logger import Logger as LoguruLogger, Core as LoguruCore
+
+from loguru._logger import Core as LoguruCore
+from loguru._logger import Logger as LoguruLogger
 
 
 class Logger(LoguruLogger):

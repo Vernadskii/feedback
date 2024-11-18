@@ -3,6 +3,7 @@ import sys
 
 import pika
 from django.conf import settings
+
 from common.logger import logger
 
 

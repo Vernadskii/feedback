@@ -1,5 +1,5 @@
-from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from ninja import Query, Router
 from ninja.errors import HttpError
 from ninja.pagination import PageNumberPagination, paginate
@@ -8,9 +8,10 @@ from polls.api_schemas import (
     BasePollSchema,
     Error,
     ExistingPollSchema,
-    QuestionSchema, PollConditionSchema,
+    PollConditionSchema,
+    QuestionSchema,
 )
-from polls.models import Poll, PollQuestion, PollConditions
+from polls.models import Poll, PollConditions, PollQuestion
 from users.auth import AuthBearer
 
 

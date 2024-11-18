@@ -1,9 +1,9 @@
 import datetime as dt
 
 from ninja import Schema
-from pydantic import field_validator, model_validator, Json
+from pydantic import Json, field_validator, model_validator
 
-from polls.models import Poll, PollQuestion, PollConditions
+from polls.models import Poll, PollConditions, PollQuestion
 
 
 class Error(Schema):

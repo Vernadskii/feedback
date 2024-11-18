@@ -1,13 +1,16 @@
-import random
 import json
+import random
+
 import pika
 from django.conf import settings
 from django.core.management import BaseCommand
 from django.core.serializers.json import DjangoJSONEncoder
+
 from common.base_sync import SyncRabbit
 from common.logger import logger
 from common.receipt import Receipt
 from polls.models import Poll, PollConditions
+
 
 LOGGER_EVENT: str = 'receipt_process'
 LOGGER_MESSAGE: str = 'Get incoming receipt'
