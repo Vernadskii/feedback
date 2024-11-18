@@ -7,9 +7,9 @@ from polls.api_schemas import (
     BasePollSchema,
     Error,
     ExistingPollSchema,
-    QuestionSchema,
+    QuestionSchema, PollConditionSchema,
 )
-from polls.models import Poll, PollQuestion
+from polls.models import Poll, PollQuestion, PollConditions
 from users.auth import AuthBearer
 
 
@@ -95,3 +95,17 @@ def list_questions(request, poll_id: int):
     """Список вопросов для опроса."""
     questions = PollQuestion.objects.filter(poll_id=poll_id)
     return [QuestionSchema.model_validate(question) for question in questions]
+
+
+# Conditions
+@router.get("/{poll_id}/condition", response={200: PollConditionSchema, 400: str}, auth=AuthBearer())
+def list_condition(request, poll_id: int):
+    condition = PollConditions.objects.filter(poll_id=poll_id)
+    return condition
+
+
+@router.post("/{poll_id}/condition", response={201: str, 400: str}, auth=AuthBearer())
+def create_conditions(request, poll_id: int, condition: PollConditionSchema):
+    PollConditions.objects.filter(poll_id=poll_id).delete()
+    PollConditions.objects.create(poll_id=poll_id, **condition.dict())
+    return 201, "Created"

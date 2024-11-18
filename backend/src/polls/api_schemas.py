@@ -3,7 +3,7 @@ import datetime as dt
 from ninja import Schema
 from pydantic import field_validator, model_validator
 
-from polls.models import Poll, PollQuestion
+from polls.models import Poll, PollQuestion, PollConditions
 
 
 class Error(Schema):
@@ -78,6 +78,26 @@ class QuestionSchema(Schema):
                     "question_type": 1,
                     "is_required": True,
                     "has_skip_answer": True,
+                },
+            ],
+        },
+    }
+
+
+# PollCondition
+
+class PollConditionSchema(Schema):
+    condition_type: int = 1
+    condition_id: str
+    condition_value: str
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "condition_type": "1",
+                    "condition_id": PollConditions.CONDITIONS_TRIGGER_ITEM_RECEIPT_SUM,
+                    "condition_value": '{"value_min": "500", "value_max": "1000"}',
                 },
             ],
         },
