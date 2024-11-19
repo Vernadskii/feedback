@@ -52,6 +52,12 @@ class ExistingPollSchema(BasePollSchema):
     author_id: int
 
 
+class PollNumbersSchema(Schema):
+    """Schema for returning polls number with status."""
+    number: int
+    status: str
+
+
 # Questions
 
 class QuestionSchema(Schema):

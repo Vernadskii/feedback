@@ -9,6 +9,7 @@ from polls.api_schemas import (
     Error,
     ExistingPollSchema,
     PollConditionSchema,
+    PollNumbersSchema,
     QuestionSchema,
 )
 from polls.models import Poll, PollConditions, PollQuestion
@@ -74,6 +75,16 @@ def list_polls(request, statuses: str = Query("0")):  # noqa: WPS404, B008
     validate_statuses(statuses_list)  # Validate statuses, raise HttpError if failed
 
     return Poll.objects.filter(status__in=statuses_list)
+
+
+@router.get("/amount/", response={200: list[PollNumbersSchema], 404: Error}, auth=AuthBearer())  # noqa: WPS221
+def polls_amount(request):
+    """Возвращает количество опросов с тем или иным статусом. Пригождается индекс на столбец status."""
+    result = []
+    for status in Poll.poll_statuses():
+        count = Poll.objects.filter(status=status).count()
+        result.append(PollNumbersSchema(number=count, status=dict(Poll.STATUSES)[status]))
+    return result
 
 
 # Questions
