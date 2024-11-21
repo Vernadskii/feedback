@@ -1,4 +1,7 @@
+from functools import wraps
+
 import jwt
+from django.http import HttpResponseForbidden
 from ninja.security import HttpBearer
 
 from feedback import settings
@@ -18,3 +21,14 @@ class AuthBearer(HttpBearer):
             return UserProfile.objects.get(id=user_id)
         except UserProfile.DoesNotExist:
             return None
+
+
+def permission_required(permission):
+    def decorator(func):
+        @wraps(func)
+        def wrapped(request, *args, **kwargs):
+            if not request.auth.has_perm(permission):
+                return HttpResponseForbidden("You do not have permission to perform this action.")
+            return func(request, *args, **kwargs)
+        return wrapped
+    return decorator

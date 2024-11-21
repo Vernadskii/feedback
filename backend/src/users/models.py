@@ -1,20 +1,41 @@
+from enum import Enum
+
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.models import Group, Permission, PermissionsMixin
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
+class UserRole(Enum):
+    TECH_SUPPORT = "tech_support"  # тех. поддержка
+    MARKETER = "marketer"  # маркетолог
+
+
+def _get_permissions_for_tech_support():
+    return Permission.objects.all()
+
+
+def _get_permissions_for_marketer():
+    return Permission.objects.exclude(codename__endswith='_userprofile')
+
+
+ROLE_PERMISSIONS = {
+    UserRole.TECH_SUPPORT.value: _get_permissions_for_tech_support,
+    UserRole.MARKETER.value: _get_permissions_for_marketer,
+}
+
+
 class MyUserManager(BaseUserManager):
     """Rewrite UserManager to delete unwanted 'username' attribute."""
     use_in_migrations = True
 
-    def create_user(self, email, password, **extra_fields):
+    def create_user(self, email, password, group, **extra_fields):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
-        return self._create_user(email, password, **extra_fields)
+        return self._create_user(email, password, group, **extra_fields)
 
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault("is_staff", True)
@@ -25,12 +46,12 @@ class MyUserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self._create_user(email, password, **extra_fields)
+        return self._create_user(email, password, group=UserRole.TECH_SUPPORT, **extra_fields)
 
     def active(self):
         return self.get_queryset().exclude(is_active=True)
 
-    def _create_user(self, email, password, **extra_fields):
+    def _create_user(self, email, password, group, **extra_fields):
         """Create and save a user with the given email and password."""
         if not email:
             raise ValueError('The Email field must be set')
@@ -38,6 +59,8 @@ class MyUserManager(BaseUserManager):
         user = self.model(email=email, **extra_fields)
         user.password = make_password(password)
         user.save(using=self._db)
+        group, _ = Group.objects.get_or_create(name=group)
+        user.groups.add(group)
         return user
 
 
