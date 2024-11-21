@@ -54,6 +54,7 @@ def register(request, payload: RegisterSchema):
         user = UserProfile.objects.create_user(
             email=payload.email,
             password=payload.password,
+            group=payload.role.value,
         )
         user.save()
     except ValidationError as ex:
