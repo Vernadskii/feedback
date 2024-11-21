@@ -16,7 +16,7 @@ from users.api_schemas import (
     UserSchema,
     UserUpdateSchema,
 )
-from users.auth import AuthBearer
+from users.auth import AuthBearer, permission_required
 from users.models import UserProfile
 
 
@@ -43,8 +43,10 @@ def login(request, payload: LoginSchema):
         raise HttpError(401, "Invalid email or password")  # noqa:  WPS503, WPS432
 
 
-@router.post("/register", response={201: UserSchema, 400: str})
+@router.post("/register", response={201: UserSchema, 400: str}, auth=AuthBearer())
+@permission_required('auth.add_userprofile')
 def register(request, payload: RegisterSchema):
+    """Handler for user creation."""
     # Check if the email already exists
     if UserProfile.objects.filter(email=payload.email).exists():
         raise HttpError(HTTPStatus.BAD_REQUEST, "Email already exists")
@@ -64,11 +66,13 @@ def register(request, payload: RegisterSchema):
 
 
 @router.get("/", response={200: list[UserSchema]}, auth=AuthBearer())
+@permission_required('auth.view_userprofile')
 def get_users(request):
     return list(UserProfile.objects.all())
 
 
 @router.get("/{user_id}", response={200: UserSchema, 404: str}, auth=AuthBearer())
+@permission_required('auth.view_userprofile')
 def get_user(request, user_id: int):
     try:
         user = UserProfile.objects.get(id=user_id)
@@ -78,6 +82,7 @@ def get_user(request, user_id: int):
 
 
 @router.patch("/{user_id}", response={200: UserSchema, 404: str}, auth=AuthBearer())
+@permission_required('auth.change_userprofile')
 def update_user(request, user_id: int, payload: UserUpdateSchema):
     try:
         user = UserProfile.objects.get(id=user_id)
