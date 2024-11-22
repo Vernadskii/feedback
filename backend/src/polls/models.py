@@ -1,3 +1,4 @@
+import uuid
 from functools import cache
 
 from django.db import models
@@ -179,3 +180,25 @@ class PollConditions(models.Model):
 
     class Meta:
         ordering = ["poll"]
+
+
+class PollProgress(models.Model):
+    """Прогресс прохождения опроса клиентом."""
+
+    STATUS_ACTIVE = 1  # Пользователь ещё не ответил на все вопросы опроса.
+    STATUS_FINISHED = 2  # Пользователь закончил прохождение опроса
+
+    STATUSES = (
+        (STATUS_ACTIVE, 'Активный'),
+        (STATUS_FINISHED, 'Закончен'),
+    )
+
+    unique_id = models.UUIDField(verbose_name='Уникальный ID опроса', default=uuid.uuid4, editable=False)
+    poll = models.ForeignKey(Poll, verbose_name='Опрос', blank=False, on_delete=models.PROTECT)
+    client = models.ForeignKey('clients.Client', verbose_name='Клиент', null=True, blank=True, on_delete=models.PROTECT)
+    status = models.PositiveIntegerField(verbose_name='Статус', blank=False, choices=STATUSES, default=STATUS_ACTIVE)
+    modified_at = models.DateTimeField(verbose_name="Дата модификации", auto_now=True)
+
+    def get_poll_questions(self):
+        result = PollQuestion.objects.filter(poll_id=self.poll_id).prefetch_related('pollquestionanswer_set').all()
+        return result
