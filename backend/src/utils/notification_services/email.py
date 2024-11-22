@@ -1,20 +1,33 @@
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
-from feedback.settings import EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_ADDRESS
+from feedback.settings import EMAIL_PASSWORD, EMAIL_ADDRESS
 
 
 class EmailSender:
 
     @staticmethod
-    def send_email(dest_email, subject, content):
-        server = smtplib.SMTP('smtp.yandex.ru', 587)
-        server.ehlo()  # Кстати, зачем это?
-        server.starttls()
-        server.login(EMAIL_USERNAME, EMAIL_PASSWORD)
+    def send_email(sent_to: str, subject: str, content: str):
+        smtpserver = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        smtpserver.ehlo()
+        smtpserver.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
 
-        email_text = 'Text'
-        message = 'From: %s\nTo: %s\nSubject: %s\n\n%s' % (EMAIL_USERNAME, dest_email, subject, email_text)
+        # Создание сообщения
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_ADDRESS
+        msg['To'] = sent_to
+        msg['Subject'] = subject
 
-        server.set_debuglevel(1)  # Необязательно; так будут отображаться данные с сервера в консоли
-        server.sendmail(EMAIL_ADDRESS, dest_email, message)
-        server.quit()
+        # Добавление текста сообщения
+        msg.attach(MIMEText(content, 'plain'))
+
+        try:
+            smtpserver.sendmail(EMAIL_ADDRESS, sent_to, msg.as_string())  # Отправка письма
+        except Exception as ex:
+            print(f"Failed to send email: {ex}")
+            return False
+        finally:
+            smtpserver.close()  # Закрытие соединения
+
+        return True
