@@ -202,3 +202,16 @@ class PollProgress(models.Model):
     def get_poll_questions(self):
         result = PollQuestion.objects.filter(poll_id=self.poll_id).prefetch_related('pollquestionanswer_set').all()
         return result
+
+
+class PollProgressAnswer(models.Model):
+    """
+    Ответы пользователя на вопросы в опросе
+    """
+    poll_progress = models.ForeignKey('polls.PollProgress', verbose_name='Прогресс клиента', blank=False, on_delete=models.CASCADE)
+    poll = models.ForeignKey(Poll, verbose_name='Опрос', blank=False, on_delete=models.PROTECT)
+    question = models.ForeignKey(PollQuestion, verbose_name='Вопрос', blank=False, on_delete=models.CASCADE)
+    answer = models.ForeignKey(PollQuestionAnswer, verbose_name='Вариант ответа', blank=True, null=True, on_delete=models.CASCADE)
+    answer_text = models.TextField(verbose_name='Текстовый ответ', blank=True, null=True)
+    date = models.DateTimeField(verbose_name='Дата ответа', blank=False, auto_now_add=True)
+    modified_at = models.DateTimeField(verbose_name="Дата модификации", auto_now=True)

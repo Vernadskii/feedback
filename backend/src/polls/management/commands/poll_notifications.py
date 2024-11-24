@@ -80,5 +80,3 @@ class Command(SyncRabbit, BaseCommand):
             new_progress = PollProgress.objects.create(poll=poll, client=client, status=PollProgress.STATUS_ACTIVE)
             if poll.channel == Poll.CHANNEL_EMAIL:
                 EmailSender.send_email(sent_to=client.email, subject=poll.mail_title, content=poll.mail_content)
-
-        return
