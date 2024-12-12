@@ -131,12 +131,6 @@ class PollQuestion(models.Model):
     title = models.TextField(verbose_name="Текст вопроса", blank=False)
     is_required = models.BooleanField(verbose_name="Обязательный", default=True)
     image = models.ImageField("Изображение", upload_to="questions", default=None, null=True, storage=fs)
-
-    has_skip_answer = models.BooleanField(
-        verbose_name='Присутствует ответ "Затрудняюсь ответить"',
-        default=False,
-    )
-
     modified_at = models.DateTimeField(verbose_name="Дата модификации", auto_now=True)
 
     class Meta:
@@ -205,9 +199,7 @@ class PollProgress(models.Model):
 
 
 class PollProgressAnswer(models.Model):
-    """
-    Ответы пользователя на вопросы в опросе
-    """
+    """Ответы пользователя на вопросы в опросе."""
     poll_progress = models.ForeignKey('polls.PollProgress', verbose_name='Прогресс клиента', blank=False, on_delete=models.CASCADE)
     poll = models.ForeignKey(Poll, verbose_name='Опрос', blank=False, on_delete=models.PROTECT)
     question = models.ForeignKey(PollQuestion, verbose_name='Вопрос', blank=False, on_delete=models.CASCADE)
