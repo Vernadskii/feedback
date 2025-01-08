@@ -1,3 +1,4 @@
+import uuid
 from functools import cache
 
 from django.db import models
@@ -130,12 +131,6 @@ class PollQuestion(models.Model):
     title = models.TextField(verbose_name="Текст вопроса", blank=False)
     is_required = models.BooleanField(verbose_name="Обязательный", default=True)
     image = models.ImageField("Изображение", upload_to="questions", default=None, null=True, storage=fs)
-
-    has_skip_answer = models.BooleanField(
-        verbose_name='Присутствует ответ "Затрудняюсь ответить"',
-        default=False,
-    )
-
     modified_at = models.DateTimeField(verbose_name="Дата модификации", auto_now=True)
 
     class Meta:
@@ -179,3 +174,36 @@ class PollConditions(models.Model):
 
     class Meta:
         ordering = ["poll"]
+
+
+class PollProgress(models.Model):
+    """Прогресс прохождения опроса клиентом."""
+
+    STATUS_ACTIVE = 1  # Пользователь ещё не ответил на все вопросы опроса.
+    STATUS_FINISHED = 2  # Пользователь закончил прохождение опроса
+
+    STATUSES = (
+        (STATUS_ACTIVE, 'Активный'),
+        (STATUS_FINISHED, 'Закончен'),
+    )
+
+    unique_id = models.UUIDField(verbose_name='Уникальный ID опроса', default=uuid.uuid4, editable=False)
+    poll = models.ForeignKey(Poll, verbose_name='Опрос', blank=False, on_delete=models.PROTECT)
+    client = models.ForeignKey('clients.Client', verbose_name='Клиент', null=True, blank=True, on_delete=models.PROTECT)
+    status = models.PositiveIntegerField(verbose_name='Статус', blank=False, choices=STATUSES, default=STATUS_ACTIVE)
+    modified_at = models.DateTimeField(verbose_name="Дата модификации", auto_now=True)
+
+    def get_poll_questions(self):
+        result = PollQuestion.objects.filter(poll_id=self.poll_id).prefetch_related('pollquestionanswer_set').all()
+        return result
+
+
+class PollProgressAnswer(models.Model):
+    """Ответы пользователя на вопросы в опросе."""
+    poll_progress = models.ForeignKey('polls.PollProgress', verbose_name='Прогресс клиента', blank=False, on_delete=models.CASCADE)
+    poll = models.ForeignKey(Poll, verbose_name='Опрос', blank=False, on_delete=models.PROTECT)
+    question = models.ForeignKey(PollQuestion, verbose_name='Вопрос', blank=False, on_delete=models.CASCADE)
+    answer = models.ForeignKey(PollQuestionAnswer, verbose_name='Вариант ответа', blank=True, null=True, on_delete=models.CASCADE)
+    answer_text = models.TextField(verbose_name='Текстовый ответ', blank=True, null=True)
+    date = models.DateTimeField(verbose_name='Дата ответа', blank=False, auto_now_add=True)
+    modified_at = models.DateTimeField(verbose_name="Дата модификации", auto_now=True)
