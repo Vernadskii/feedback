@@ -63,6 +63,23 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  watcher_poll_notification:
+    <<: *backend
+    ports:
+      - "5687:5678"
+    command:
+      poetry run /app/src/manage.py poll_notifications
+    depends_on:
+      - postgres_db
+      - rabbitmq
+    environment:
+      <<: *backend-env
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
   frontend:
     build:
       context: ./frontend
