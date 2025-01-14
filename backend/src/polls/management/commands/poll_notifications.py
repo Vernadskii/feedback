@@ -1,8 +1,8 @@
 import json
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import BaseCommand
-from django.db.models import Model
 
 from clients.models import Client
 from common.base_sync import SyncRabbit
@@ -35,7 +35,6 @@ class Command(SyncRabbit, BaseCommand):
         )
 
     def callback(self, ch, method, properties, body):
-        self.heartbeat()
         notify_data = None
         try:
             notify_data = json.loads(body)
@@ -51,7 +50,7 @@ class Command(SyncRabbit, BaseCommand):
 
     def _notify_poll(self, notify_data):
         client_card = notify_data.get("client_card_number")
-        client = Client.objects.filter(card_number=client_card)
+        client = Client.objects.get(card_number=client_card)
         if not client:
             logger.warning(
                 event='_notify_poll',
@@ -60,7 +59,7 @@ class Command(SyncRabbit, BaseCommand):
             return
 
         poll_id = notify_data.get("poll_id")
-        poll = Poll.objects.get_poll(poll_id=poll_id)
+        poll = Poll.objects.get(pk=poll_id)
 
         if poll is None:
             # TODO: add logging
@@ -73,10 +72,11 @@ class Command(SyncRabbit, BaseCommand):
         notified = True  # flag that shows the client already notified
         try:
             PollProgress.objects.get(poll=poll, client=client)
-        except Model.DoesNotExist:
+        except ObjectDoesNotExist:
             notified = False
 
         if notified is False:
             new_progress = PollProgress.objects.create(poll=poll, client=client, status=PollProgress.STATUS_ACTIVE)
             if poll.channel == Poll.CHANNEL_EMAIL:
-                EmailSender.send_email(sent_to=client.email, subject=poll.mail_title, content=poll.mail_content)
+                result = EmailSender.send_email(sent_to=client.email, subject=poll.mail_title, content=poll.mail_content)
+                print(result)
